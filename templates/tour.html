@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+{% block title %}Index{% endblock %}
+{% block head %}
+    {{ super() }}
+{% endblock %}
+{% block content %}
+
+    <section class="mt-3 pb-5">
+      {% set stars = list['stars'] | int %}
+      <h1 class="display-3 mt-4">{{list['title']}} {% for star in range(stars) %}★{% endfor %}</h1>
+      <!-- HERO -->
+      <p class="lead">{{list['country']}} {{departures[list['departure']]}} {{list['nights']}} ночей</p>
+      <img src="{{list['picture']}}" class="w-75" alt="">
+      <p class="my-4 w-75">{{list['description']}}</p>
+      <a href="#" class="btn btn-success btn-lg">Купить тур за {{list['price']}}</a>
+    </section>
+
+{% endblock %}
