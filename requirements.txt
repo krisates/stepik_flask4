@@ -54,13 +54,9 @@ chardet==3.0.4
 click==6.7
 cloudant==0.5.10
 cloudpickle==1.2.2
-clyent==1.2.2
+clyent==1.2.1
 colorama==0.4.1
 colorlog==4.0.2
-conda==4.7.12
-conda-build==3.18.9
-conda-package-handling==1.6.0
-conda-verify==3.4.2
 configparser==3.5.3
 contextlib2==0.6.0
 cookies==2.2.1
