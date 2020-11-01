@@ -192,7 +192,13 @@ tours = {
 
 @app.route('/')
 def route_index():
-  return render_template('index.html', title=title, subtitle=subtitle, description=description, departures=departures)
+  ctours = {}
+  key = 1
+  while key < 6:
+      ctours[key] = tours[key]
+      key += 1
+
+  return render_template('index.html', title=title, subtitle=subtitle, description=description, departures=departures, list=ctours)
 
 
 @app.route('/data/')
@@ -224,5 +230,6 @@ def route_data_departures(departure):
 
   return render_template('data.html', title=title, subtitle=subtitle, description=description, departures=departures, departure=departure, list=ctours, departures_list=departures_list)
 
-
-app.run('0.0.0.0',8000)    # запустим сервер на 8000 порту!
+if __name__ == '__main__':
+  #app.run('0.0.0.0',8000)    # запустим сервер на 8000 порту!
+  app.run()    # запустим сервер на 8000 порту!
