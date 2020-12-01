@@ -11,7 +11,7 @@ import json
 
 app = Flask(__name__)      # объявим экземпляр фласка
 app.secret_key = "randomstringstepiktranslate"
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:base@127.0.0.1:5432/stepik3'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://yllkocmnskcxyq:d98afb9efd3151fa1fc2cc5687480a2e22cfd54ec995be0644b977d412098a41@ec2-54-247-103-43.eu-west-1.compute.amazonaws.com:5432/d97uuhg52vb66b'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 csrf = CSRFProtect(app)
 db = SQLAlchemy(app)
