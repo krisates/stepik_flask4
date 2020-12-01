@@ -1,7 +1,5 @@
 from alembic import op
 import sqlalchemy as sa
-import json
-from data import *
 
 
 # revision identifiers, used by Alembic.
@@ -20,7 +18,7 @@ def upgrade():
     sa.Column('name', sa.String(length=255), nullable=False),
     sa.Column('phone', sa.String(length=25), nullable=False),
     sa.PrimaryKeyConstraint('id'),
-    sa.Constraint('teacher')
+    sa.Constraint('teachers')
     )
 
     op.create_table('request',
@@ -30,7 +28,7 @@ def upgrade():
     sa.Column('phone', sa.String(length=25), nullable=False),
     sa.Column('goal_id', sa.Integer(), nullable=False),
     sa.PrimaryKeyConstraint('id'),
-    sa.Constraint('goal')
+    sa.Constraint('goals')
     )
 
     op.create_table('goals',
@@ -46,8 +44,8 @@ def upgrade():
     sa.Column('teacher_id', sa.String(length=255), nullable=False),
     sa.Column('goal_id', sa.String(length=255), nullable=False),
     sa.PrimaryKeyConstraint('id'),
-    sa.Constraint('teacher'),
-    sa.Constraint('goal')
+    sa.Constraint('teachers'),
+    sa.Constraint('goals')
     )
 
 
