@@ -3,13 +3,74 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, HiddenField, RadioField
 from wtforms.validators import InputRequired
 from flask_wtf.csrf import CSRFProtect
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 import random
 import json
 
 
 app = Flask(__name__)      # объявим экземпляр фласка
 app.secret_key = "randomstringstepiktranslate"
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:base@127.0.0.1:5432/stepik3'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 csrf = CSRFProtect(app)
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+
+
+teachers_goals_association = db.Table(
+    "teachers_goals",
+    db.Column("teacher_id", db.Integer, db.ForeignKey("teachers.id")),
+    db.Column("goal_id", db.Integer, db.ForeignKey("goals.id")),
+)
+
+
+class Teacher(db.Model):
+    __tablename__ = "teachers"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String)
+    about = db.Column(db.String)
+    rating = db.Column(db.Float)
+    picture = db.Column(db.String)
+    price = db.Column(db.Float)
+    email = db.Column(db.String)
+    free = db.Column(db.String)
+    bookings = db.relationship("Booking")
+    goals = db.relationship(
+        "Goal", secondary=teachers_goals_association, back_populates="teachers"
+    )
+
+
+class Booking(db.Model):
+    __tablename__ = "booking"
+    id = db.Column(db.Integer, primary_key=True)
+    day = db.Column(db.String)
+    hour = db.Column(db.Integer)
+    teacher_id = db.Column(db.Integer, db.ForeignKey("teachers.id"))
+    teacher = db.relationship("Teacher")
+    name = db.Column(db.String)
+    phone = db.Column(db.String)
+
+
+class Request(db.Model):
+    __tablename__ = "request"
+    id = db.Column(db.Integer, primary_key=True)
+    hour = db.Column(db.String)
+    name = db.Column(db.String)
+    goal_id = db.Column(db.Integer, db.ForeignKey("goals.id"))
+    goal = db.relationship("Goal")
+    phone = db.Column(db.String)
+
+
+class Goal(db.Model):
+    __tablename__ = "goals"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String)
+    alias = db.Column(db.String)
+    teachers = db.relationship(
+        "Teacher", secondary=teachers_goals_association, back_populates="goals"
+    )
+
 
 title = "Stepik Translate"
 subtitle = "Все репетиторы"
@@ -44,19 +105,63 @@ def get_teachers(teachers_list):
 
 
 def add_request(client_goal, client_time, client_name, client_phone):
-    with open('data/request.json', "r") as r:
-        records = json.load(r)
-    records.append({'goal': client_goal, 'hour': client_time, 'name': client_name, 'phone': client_phone})
-    with open('data/request.json', "w") as w:
-        json.dump(records, w)
+    req = Request(
+        name=client_name,
+        hour=client_time,
+        goal=db.session.query(Goal).filter(Goal.alias == client_goal).first(),
+        phone=client_phone
+    )
+    db.session.add(req)
+    db.session.commit()
 
 
 def add_booking(client_weekday, client_time, client_teacher, client_name, client_phone):
-    with open('data/booking.json', "r") as r:
-        records = json.load(r)
-    records.append({'day': client_weekday, 'hour': client_time, 'teacher': client_teacher, 'name': client_name, 'phone': client_phone})
-    with open('data/booking.json', "w") as w:
-        json.dump(records, w)
+    time,_ = client_time.split(':')
+    booking = Booking(
+        day=client_weekday,
+        name=client_name,
+        hour=time,
+        phone=client_phone,
+        teacher=db.session.query(Teacher).get(client_teacher)
+    )
+    db.session.add(booking)
+    db.session.commit()
+
+
+# заполняем БД
+if db.session.query(Goal).count() == 0:
+    with open("data/goals.json", "r") as f:
+       goals = json.load(f)
+
+    for goal in goals:
+        db.session.add(Goal(name=goals[goal], alias=goal))
+
+    db.session.commit()
+    goals_db = db.session.query(Goal).all()
+
+    goals_list = {}
+    for goal in goals_db:
+        goals_list[goal.alias] = goal
+
+    for teacher in teachers_json:
+
+        t = Teacher(
+                name=teacher['name'],
+                about=teacher['about'],
+                rating=teacher['rating'],
+                picture=teacher['picture'],
+                price=teacher['price'],
+                free=json.dumps(teacher['free'])
+            )
+
+        for goal in teacher['goals']:
+            t.goals.append(goals_list[goal])
+
+        db.session.add(t)
+
+    db.session.commit()
+
+# заполняем БД - окончание
 
 
 # создание форм
@@ -88,28 +193,37 @@ class BookingForm(FlaskForm):
 
 @app.route('/')
 def route_index():
-    return render_template('index.html', title=title, subtitle=subtitle, description=description, teachers=random.sample(teachers_json, 6), goals=goals)
+    teachers = db.session.query(Teacher).all()
+    teacher_c = db.session.query(Teacher).count()
+    return render_template('index.html', title=title, subtitle=subtitle, description=description, teachers=random.sample(teachers, 6), teachers_c=teacher_c, goals=goals)
 
 
 @app.route('/teachers/')
 def route_teachers():
-    return render_template('index.html', title=title, subtitle=subtitle, description=description, teachers=teachers_json, goals=goals)
+    sort = request.values.get('sort', 'rating')
+    if sort == 'rating':
+        teachers = db.session.query(Teacher).order_by(Teacher.rating.desc()).all()
+    else:
+        teachers = db.session.query(Teacher).order_by(Teacher.price.desc()).all()
+    teacher_c = db.session.query(Teacher).count()
+    return render_template('index.html', title=title, subtitle=subtitle, description=description, teachers=teachers, teachers_c=teacher_c, goals=goals)
 
 
 @app.route('/goal/<goal>/')
 def route_goal(goal):
-    teachers = []
-    for item in teachers_json:
-        if item['id'] in [8, 9, 10, 11]:
-            item['goals'].append('dev')
-        if goal in item['goals']:
-            teachers.append(item)
+    teachers = db.session.query(Teacher).order_by(Teacher.rating.desc()).all()
+
+    teacher_list = []
+    for item in teachers:
+        if 0 != len(list(filter(lambda x: x.alias == goal, item.goals))):
+            teacher_list.append(item)
+
     return render_template(
         'goal.html',
         title=title,
         subtitle=subtitle,
         description=description,
-        teachers=sorted(teachers, key=lambda x: x['rating'], reverse=True),
+        teachers=teacher_list,
         goals=goals,
         goal=goal
     )
@@ -117,16 +231,15 @@ def route_goal(goal):
 
 @app.route('/profile/<int:teacher_id>/')
 def route_profile(teacher_id):
-    teachers = get_teachers(teachers_json)
 
-    schedule = {}
-    for item, val in teachers[teacher_id]['free'].items():
-        lessons = []
-        for hour, is_free in val.items():
-            if is_free is True:
-                lessons.append(hour)
-        schedule.update({item: lessons})
-    return render_template('profile.html', title=title, subtitle=subtitle, description=description, teacher=teachers[teacher_id], schedule=schedule, days=days, goals=goals)
+    teacher = db.session.query(Teacher).get_or_404(teacher_id)
+
+    schedule = json.loads(teacher.free)
+
+    for item in teacher.bookings:
+        schedule[item.day][str(item.hour) + ':00'] = False
+
+    return render_template('profile.html', title=title, subtitle=subtitle, description=description, teacher=teacher, schedule=schedule, days=days, goals=goals)
 
 
 @app.route('/request/', methods=["GET", "POST"])

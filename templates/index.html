@@ -9,6 +9,20 @@
     {% include 'parts/goals_nav.html' %}
     <h2 class="h5 text-center mb-5">Наши преподаватели</h2>
     <div class="row">
+      <div class="col-4 col-lg-3  offset-lg-1">
+        Всего {{teachers_c}} преподавателей
+      </div>
+      <div class="col-2 col-lg-2 offset-2">
+        Сортировать:
+      </div>
+      <div class="col-2 col-lg-2 rate-sort" style="cursor:pointer;">
+        по рейтингу
+      </div>
+      <div class="col-2 col-lg-2 price-sort" style="cursor:pointer;">
+        по ставке
+      </div>
+    </div>
+    <div class="row">
       <div class="col-12 col-lg-10 offset-lg-1 m-auto">
         {% for teacher in teachers %}
             {% include 'parts/_teacher.html' %}
@@ -23,4 +37,14 @@
         <a href="" class="btn btn-primary">Заказать подбор</a>
     </div>
       </section>
+<script>
+    window.onload = function() {
+        $(document).on('click','.rate-sort', function(){
+            window.location.href = '/teachers?sort=rating';
+        });
+        $(document).on('click','.price-sort', function(){
+            window.location.href = '/teachers?sort=price';
+        });
+    }
+</script>
 {% endblock %}

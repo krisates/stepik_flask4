@@ -15,7 +15,7 @@
               <h1 class="h2">{{teacher.name}}</h1>
               <p>
                 {% for goal in teacher.goals %}
-                    <span class="badge badge-secondary mr-2">{{goals[goal]}} </span>
+                    <span class="badge badge-secondary mr-2">{{goal.name}} </span>
                 {% endfor %}
                 Рейтинг: {{teacher.rating}} Ставка: {{teacher.price}} / час
               </p>
@@ -33,7 +33,9 @@
                       <p>Нет свободных уроков</p>
                   {% else %}
                       {% for time in val %}
-                          <a href="/booking/{{teacher.id}}/{{day}}/{{time.replace(':00','')}}" class="btn btn-outline-success  mr-2 mb-1">{{time}} свободно</a>
+                          {% if val[time] == True %}
+                              <a href="/booking/{{teacher.id}}/{{day}}/{{time.replace(':00','')}}" class="btn btn-outline-success  mr-2 mb-1">{{time}} свободно</a>
+                          {% endif %}
                       {% endfor %}
                   {% endif %}
 
