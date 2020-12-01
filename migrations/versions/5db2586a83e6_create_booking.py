@@ -17,8 +17,8 @@ def upgrade():
     sa.Column('teacher_id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=255), nullable=False),
     sa.Column('phone', sa.String(length=25), nullable=False),
-    sa.PrimaryKeyConstraint('id')# ,
-    # sa.Constraint('teachers')
+    sa.PrimaryKeyConstraint('id'),
+    sa.Constraint('teacher')
     )
 
     op.create_table('request',
@@ -27,8 +27,8 @@ def upgrade():
     sa.Column('name', sa.String(length=255), nullable=False),
     sa.Column('phone', sa.String(length=25), nullable=False),
     sa.Column('goal_id', sa.Integer(), nullable=False),
-    sa.PrimaryKeyConstraint('id') #,
-    # sa.Constraint('goals')
+    sa.PrimaryKeyConstraint('id'),
+    sa.Constraint('goal')
     )
 
     op.create_table('goals',
@@ -43,9 +43,9 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('teacher_id', sa.String(length=255), nullable=False),
     sa.Column('goal_id', sa.String(length=255), nullable=False),
-    sa.PrimaryKeyConstraint('id') #,
-    # sa.Constraint('teachers'),
-    # sa.Constraint('goals')
+    sa.PrimaryKeyConstraint('id'),
+    sa.Constraint('teacher'),
+    sa.Constraint('goal')
     )
 
 
