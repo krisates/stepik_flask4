@@ -7,6 +7,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 import random
 import json
+from http.client import HTTPException
 
 
 app = Flask(__name__)      # объявим экземпляр фласка
@@ -232,7 +233,11 @@ def route_goal(goal):
 @app.route('/profile/<int:teacher_id>/')
 def route_profile(teacher_id):
 
-    teacher = db.session.query(Teacher).get_or_404(teacher_id)
+    # teacher = db.session.query(Teacher).get_or_404(teacher_id)
+    teacher = db.session.query(Teacher).get(teacher_id)
+
+    if not teacher:
+        raise HTTPException(code=404)
 
     schedule = json.loads(teacher.free)
 
