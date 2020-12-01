@@ -129,38 +129,38 @@ def add_booking(client_weekday, client_time, client_teacher, client_name, client
 
 
 # заполняем БД
-#if db.session.query(Goal).count() == 0:
-#    with open("data/goals.json", "r") as f:
-#       goals = json.load(f)
-#
-#    for goal in goals:
-#        db.session.add(Goal(name=goals[goal], alias=goal))
-#
-#    db.session.commit()
-#    goals_db = db.session.query(Goal).all()
-#
-#    goals_list = {}
-#    for goal in goals_db:
-#        goals_list[goal.alias] = goal
-#
-#    for teacher in teachers_json:
-#
-#        t = Teacher(
-#                name=teacher['name'],
-#                about=teacher['about'],
-#                rating=teacher['rating'],
-#                picture=teacher['picture'],
-#                price=teacher['price'],
-#                free=json.dumps(teacher['free'])
-#            )
-#
-#        for goal in teacher['goals']:
-#            t.goals.append(goals_list[goal])
-#
-#        db.session.add(t)
-#
-#    db.session.commit()
-#
+if db.session.query(Goal).count() == 0:
+    with open("data/goals.json", "r") as f:
+       goals = json.load(f)
+
+    for goal in goals:
+        db.session.add(Goal(name=goals[goal], alias=goal))
+
+    db.session.commit()
+    goals_db = db.session.query(Goal).all()
+
+    goals_list = {}
+    for goal in goals_db:
+        goals_list[goal.alias] = goal
+
+    for teacher in teachers_json:
+
+        t = Teacher(
+                name=teacher['name'],
+                about=teacher['about'],
+                rating=teacher['rating'],
+                picture=teacher['picture'],
+                price=teacher['price'],
+                free=json.dumps(teacher['free'])
+            )
+
+        for goal in teacher['goals']:
+            t.goals.append(goals_list[goal])
+
+        db.session.add(t)
+
+    db.session.commit()
+
 # заполняем БД - окончание
 
 
