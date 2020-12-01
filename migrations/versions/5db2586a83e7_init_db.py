@@ -21,7 +21,7 @@ def upgrade():
     sa.Column('picture', sa.String(length=255), nullable=False),
     sa.Column('price', sa.Float(), nullable=False),
     sa.Column('email', sa.String(length=255), nullable=False),
-    sa.Column('free', sa.String(1000), nullable=False),
+    sa.Column('free', sa.String(length=1000), nullable=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email')
     )
