@@ -116,7 +116,7 @@ def add_request(client_goal, client_time, client_name, client_phone):
 
 
 def add_booking(client_weekday, client_time, client_teacher, client_name, client_phone):
-    time,_ = client_time.split(':')
+    time, _ = client_time.split(':')
     booking = Booking(
         day=client_weekday,
         name=client_name,
@@ -239,7 +239,16 @@ def route_profile(teacher_id):
     for item in teacher.bookings:
         schedule[item.day][str(item.hour) + ':00'] = False
 
-    return render_template('profile.html', title=title, subtitle=subtitle, description=description, teacher=teacher, schedule=schedule, days=days, goals=goals)
+    return render_template(
+        'profile.html',
+        title=title,
+        subtitle=subtitle,
+        description=description,
+        teacher=teacher,
+        schedule=schedule,
+        days=days,
+        goals=goals
+    )
 
 
 @app.route('/request/', methods=["GET", "POST"])
@@ -324,5 +333,5 @@ def route_booking(teacher_id, day, hour):
 
 
 if __name__ == '__main__':
-    #app.run('0.0.0.0',8000)    # запустим сервер на 8000 порту!
+    # app.run('0.0.0.0',8000)    # запустим сервер на 8000 порту!
     app.run()    # запустим сервер на 8000 порту!
