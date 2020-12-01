@@ -7,3 +7,4 @@ flask_wtf==0.14.2
 werkzeug==0.16.1
 flask_sqlalchemy==2.1
 flask_migrate==2.5.3
+psycopg2==2.4.4
